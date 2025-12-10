@@ -4,6 +4,14 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Drop existing tables to recreate with correct schema
+DROP TABLE IF EXISTS interest_signal_users CASCADE;
+DROP TABLE IF EXISTS interest_signals CASCADE;
+DROP TABLE IF EXISTS event_attendance CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
+DROP TABLE IF EXISTS neighborhood_segments CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- ===== USERS =====
 
 CREATE TABLE IF NOT EXISTS users (
