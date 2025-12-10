@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ProductMockup } from '@/components/ProductMockup';
 
 export default function LandingPage() {
   const [email, setEmail] = useState('');
@@ -41,11 +42,12 @@ export default function LandingPage() {
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         >
           <Image
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80&auto=format&fit=crop"
             alt="Suburban neighborhood"
             fill
             className="object-cover"
             priority
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0D0D0F]/70 via-[#0D0D0F]/50 to-[#0D0D0F]"></div>
         </div>
@@ -137,12 +139,13 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
               <Image
-                src="https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800&q=80"
+                src="https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800&q=80&auto=format&fit=crop"
                 alt="Suburban street"
                 fill
                 className="object-cover"
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E]/30 to-transparent"></div>
             </div>
@@ -181,25 +184,25 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          {/* Feature Cards with Images */}
+          {/* Feature Cards with Product Mockups */}
           <div className="grid lg:grid-cols-3 gap-8">
             {[
               {
-                image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80',
+                mockup: 'host-modal' as const,
                 icon: '🎯',
                 title: 'Host micro-events',
                 description: 'Start small things like coffee in the cul-de-sac, dog walks, or porch music. Choose from simple templates and go live in one tap.',
                 gradient: 'from-[#F6C56A]/20 to-[#E8A34A]/20'
               },
               {
-                image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80',
+                mockup: 'map' as const,
                 icon: '🗺️',
                 title: 'See what\'s happening',
                 description: 'Live neighborhood map shows nearby events and interest signals. Everything is walking or biking distance.',
                 gradient: 'from-[#8BA989]/20 to-[#8BA989]/10'
               },
               {
-                image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80',
+                mockup: 'event-list' as const,
                 icon: '🤝',
                 title: 'Build real belonging',
                 description: 'Repeated meetups turn neighbors into community. See the same faces, learn names, and feel like your suburb is alive.',
@@ -207,15 +210,13 @@ export default function LandingPage() {
               },
             ].map((feature, i) => (
               <div key={i} className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={feature.image}
-                    alt={feature.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-b ${feature.gradient}`}></div>
-                  <div className="absolute top-6 left-6 text-5xl">{feature.icon}</div>
+                <div className={`relative h-80 overflow-hidden bg-gradient-to-b ${feature.gradient} flex items-center justify-center p-8`}>
+                  <div className="w-full h-full flex items-center justify-center transform group-hover:scale-105 transition-transform duration-700">
+                    <ProductMockup type={feature.mockup} />
+                  </div>
+                  <div className="absolute top-6 left-6 text-5xl bg-white rounded-2xl w-16 h-16 flex items-center justify-center shadow-lg">
+                    {feature.icon}
+                  </div>
                 </div>
                 <div className="p-8">
                   <h3 className="text-2xl font-bold text-[#1C1C1E] mb-4">{feature.title}</h3>
@@ -243,25 +244,25 @@ export default function LandingPage() {
                 num: '1',
                 title: 'Open the map',
                 description: 'See micro-events and interest spots in your suburb. Everything is hyperlocal—within a few blocks.',
-                image: 'https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?w=600&q=80'
+                mockup: 'map' as const
               },
               {
                 num: '2',
                 title: 'Host or suggest an idea',
                 description: 'Choose from templates like coffee meetup, dog hour, evening walk. One tap and it\'s live on the map.',
-                image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&q=80'
+                mockup: 'host-modal' as const
               },
               {
                 num: '3',
                 title: 'Neighbors join',
                 description: 'People nearby tap "Join" or "I\'m interested." No complicated RSVPs or group chats.',
-                image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80'
+                mockup: 'event-card' as const
               },
               {
                 num: '4',
                 title: 'Your suburb feels alive',
                 description: 'Familiar faces, recurring meetups, and the sense that your neighborhood has culture.',
-                image: 'https://images.unsplash.com/photo-1560439513-74b037a25d84?w=600&q=80'
+                mockup: 'event-list' as const
               },
             ].map((step, i) => (
               <div key={i} className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center group`}>
@@ -272,14 +273,10 @@ export default function LandingPage() {
                   <h3 className="text-3xl font-bold text-[#1C1C1E] mb-4">{step.title}</h3>
                   <p className="text-xl text-[#3A3A3C] leading-relaxed">{step.description}</p>
                 </div>
-                <div className="flex-1 relative h-80 w-full rounded-3xl overflow-hidden shadow-2xl group-hover:shadow-3xl transition-all">
-                  <Image
-                    src={step.image}
-                    alt={step.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#F6C56A]/10 to-transparent"></div>
+                <div className="flex-1 relative w-full rounded-3xl overflow-hidden shadow-2xl group-hover:shadow-3xl transition-all bg-gradient-to-br from-[#F5F5F7] to-white p-8">
+                  <div className="transform group-hover:scale-105 transition-transform duration-700">
+                    <ProductMockup type={step.mockup} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -329,6 +326,7 @@ export default function LandingPage() {
                     alt={testimonial.persona}
                     fill
                     className={`object-cover group-hover:scale-105 transition-transform duration-700 ${testimonial.badge ? 'opacity-40' : ''}`}
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1E]/80 to-transparent"></div>
                   <div className="absolute bottom-6 left-6 text-3xl">
@@ -349,10 +347,11 @@ export default function LandingPage() {
       <section id="waitlist" className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=1920&q=80&auto=format&fit=crop"
             alt="Community gathering"
             fill
             className="object-cover"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0D0D0F]/90 to-[#1C1C1E]/95"></div>
         </div>
