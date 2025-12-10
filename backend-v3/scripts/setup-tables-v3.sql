@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS neighborhood_segments (
   lon DOUBLE PRECISION NOT NULL,
   dist_to_raleigh_mi DOUBLE PRECISION NOT NULL,
   dist_to_durham_mi DOUBLE PRECISION NOT NULL,
-  dist_to_chapel_hill_mi DOUBLE PRECISION NOT NULL,
+  dist_to_chapelhill_mi DOUBLE PRECISION NOT NULL,
   dominant_city VARCHAR(20) NOT NULL CHECK(dominant_city IN ('Raleigh', 'Durham', 'Chapel Hill')),
   pop_density DOUBLE PRECISION NOT NULL,
   suburb_type VARCHAR(30) NOT NULL CHECK(suburb_type IN ('Inner-Ring Suburb', 'General Suburb', 'Exurban Suburb'))

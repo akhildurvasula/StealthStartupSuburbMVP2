@@ -14,12 +14,12 @@ export interface NeighborhoodSegment {
   name: string;
   lat: number;
   lon: number;
-  distToRaleighMi: number;
-  distToDurhamMi: number;
-  distToChapelHillMi: number;
-  dominantCity: 'Raleigh' | 'Durham' | 'Chapel Hill';
-  popDensity: number;
-  suburbType: 'Inner-Ring Suburb' | 'General Suburb' | 'Exurban Suburb';
+  dist_to_raleigh_mi: number;
+  dist_to_durham_mi: number;
+  dist_to_chapelhill_mi: number;
+  dominant_city: 'Raleigh' | 'Durham' | 'Chapel Hill';
+  pop_density: number;
+  suburb_type: 'Inner-Ring Suburb' | 'General Suburb' | 'Exurban Suburb';
 }
 
 export interface Event {
