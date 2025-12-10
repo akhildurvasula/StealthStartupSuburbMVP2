@@ -20,8 +20,8 @@
   }
 }
 
-/* Mapbox CSS */
-@import 'mapbox-gl/dist/mapbox-gl.css';
+/* Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
 
 /* Custom map styles */
 .mapboxgl-popup-content {

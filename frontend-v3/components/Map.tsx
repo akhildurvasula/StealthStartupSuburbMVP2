@@ -5,7 +5,8 @@ import mapboxgl from 'mapbox-gl';
 import { Event, InterestSignal } from '@/lib/types';
 
 // Set your Mapbox token
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+// Temporarily using a test token to debug
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
 
 interface MapProps {
   center: [number, number]; // [lng, lat]
@@ -24,19 +25,48 @@ export function Map({ center, events, interestSignals, onEventClick, onSignalCli
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
-      zoom: 13,
-    });
+    console.log('🗺️ Initializing Mapbox GL...');
 
-    map.current.on('load', () => {
-      setMapLoaded(true);
-    });
+    try {
+      // Use the simplest raster style (no vector tiles needed)
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: {
+          version: 8,
+          sources: {
+            'simple-tiles': {
+              type: 'raster',
+              tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+            },
+          },
+          layers: [{
+            id: 'simple-tiles',
+            type: 'raster',
+            source: 'simple-tiles',
+            minzoom: 0,
+            maxzoom: 22,
+          }],
+        },
+        center: center,
+        zoom: 13,
+      });
 
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.on('load', () => {
+        console.log('🗺️ Map loaded!');
+        setMapLoaded(true);
+        if (map.current) map.current.resize();
+      });
+
+      map.current.on('error', (e) => {
+        console.error('🗺️ Map error:', e);
+      });
+
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    } catch (error) {
+      console.error('🗺️ Failed to initialize map:', error);
+    }
 
     return () => {
       map.current?.remove();
@@ -120,7 +150,11 @@ export function Map({ center, events, interestSignals, onEventClick, onSignalCli
     <div 
       ref={mapContainer} 
       className="w-full h-full"
-      style={{ minHeight: '400px' }}
+      style={{ 
+        minHeight: '500px',
+        height: '100%',
+        backgroundColor: '#e5e7eb' // Light gray background
+      }}
     />
   );
 }

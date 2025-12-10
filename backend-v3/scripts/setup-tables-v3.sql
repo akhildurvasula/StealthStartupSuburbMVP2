@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS neighborhood_segments (
 
 CREATE TABLE IF NOT EXISTS events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  host_id UUID NOT NULL REFERENCES users(id),
+  host_id VARCHAR(255) NOT NULL, -- Alpha: any string ID, no foreign key
   template_key VARCHAR(50) NOT NULL,
   title VARCHAR(255) NOT NULL,
   description TEXT,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS event_attendance (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) NOT NULL, -- Alpha: any string ID, no foreign key
   status VARCHAR(20) NOT NULL DEFAULT 'joined' CHECK(status IN ('joined')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(event_id, user_id)
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS event_attendance (
 
 CREATE TABLE IF NOT EXISTS interest_signals (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id VARCHAR(255) NOT NULL, -- Alpha: any string ID, no foreign key
   template_key VARCHAR(50) NOT NULL,
   lat DOUBLE PRECISION NOT NULL,
   lon DOUBLE PRECISION NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS interest_signals (
 CREATE TABLE IF NOT EXISTS interest_signal_users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   signal_id UUID NOT NULL REFERENCES interest_signals(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) NOT NULL, -- Alpha: any string ID, no foreign key
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(signal_id, user_id)
 );

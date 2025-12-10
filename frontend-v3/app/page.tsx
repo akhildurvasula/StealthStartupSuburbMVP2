@@ -2,8 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Map } from '@/components/Map';
+import dynamic from 'next/dynamic';
 import { SuburbBanner } from '@/components/SuburbBanner';
+
+// Load Leaflet Map component only on client side
+const LeafletMap = dynamic(() => import('@/components/LeafletMap').then(mod => ({ default: mod.LeafletMap })), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <div className="text-4xl mb-2">🗺️</div>
+        <p className="text-gray-600">Loading map...</p>
+      </div>
+    </div>
+  ),
+});
 import { EventDrawer } from '@/components/EventDrawer';
 import { HostEventModal } from '@/components/HostEventModal';
 import { InterestSignalModal } from '@/components/InterestSignalModal';
@@ -33,22 +46,29 @@ export default function Home() {
 
   // Request geolocation on mount
   useEffect(() => {
+    // Set default location immediately (Chapel Hill)
+    const defaultLocation: [number, number] = [-79.0558, 35.9132];
+    setUserLocation(defaultLocation);
+    
+    // Then try to get actual location with timeout
     if ('geolocation' in navigator) {
+      const timeoutId = setTimeout(() => {
+        console.log('Geolocation timeout, using default location');
+      }, 5000);
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(timeoutId);
           const { latitude, longitude } = position.coords;
           setUserLocation([longitude, latitude]);
+          console.log('Got actual location:', longitude, latitude);
         },
         (error) => {
+          clearTimeout(timeoutId);
           console.error('Geolocation error:', error);
-          // Default to Raleigh if location denied
-          setUserLocation([-78.6382, 35.7796]);
-          setToast({ message: 'Using default location', type: 'error' });
-        }
+        },
+        { timeout: 5000, enableHighAccuracy: false }
       );
-    } else {
-      // Default to Raleigh
-      setUserLocation([-78.6382, 35.7796]);
     }
   }, []);
 
@@ -198,7 +218,7 @@ export default function Home() {
 
       {/* Map */}
       <div className="flex-1 relative">
-        <Map
+        <LeafletMap
           center={userLocation}
           events={events}
           interestSignals={interestSignals}

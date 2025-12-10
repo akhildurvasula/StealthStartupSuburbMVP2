@@ -5,7 +5,7 @@ import { AuthRequest } from '../utils/auth';
 import { classifySuburb } from '../utils/suburbClassifier';
 
 const createInterestSignalSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(), // Any string ID for Alpha (not just UUID)
   templateKey: z.string(),
   lat: z.number(),
   lon: z.number(),

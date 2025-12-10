@@ -6,7 +6,7 @@ import { classifySuburb } from '../utils/suburbClassifier';
 import { calculateEndTime } from '../config/microEventTemplates';
 
 const createEventSchema = z.object({
-  hostId: z.string().uuid(),
+  hostId: z.string(), // Any string ID for Alpha (not just UUID)
   templateKey: z.string(),
   title: z.string(),
   description: z.string().optional(),

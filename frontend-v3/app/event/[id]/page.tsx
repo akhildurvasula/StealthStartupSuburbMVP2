@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Event, MICRO_EVENT_TEMPLATES } from '@/lib/types';
+import { Toast } from '@/components/Toast';
 import * as api from '@/lib/api';
 import { getUserId } from '@/lib/storage';
 import { formatEventTime, getSuburbTypeColor } from '@/lib/utils';
@@ -16,6 +17,7 @@ export default function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAttending, setIsAttending] = useState(false);
   const [attendeeCount, setAttendeeCount] = useState(0);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
