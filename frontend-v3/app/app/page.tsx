@@ -226,27 +226,31 @@ export default function Home() {
           onSignalClick={handleSignalClick}
         />
 
-        {/* Floating Action Buttons */}
-        <div className="absolute bottom-32 right-4 flex flex-col gap-3">
-          {/* Suggest Idea Button */}
+        {/* Floating Action Buttons - Porchlight Brand */}
+        <div className="absolute bottom-32 right-6 flex flex-col gap-4">
+          {/* Suggest Idea Button (Ghost Pin) */}
           <button
             onClick={() => setInterestModalOpen(true)}
-            className="bg-white text-gray-700 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center border-2 border-gray-300 border-dashed"
+            className="backdrop-blur-md bg-white/90 text-[#3A3A3C] w-16 h-16 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center justify-center border-2 border-[#E8A34A] border-opacity-40 border-dashed hover:border-solid hover:bg-[#F6C56A]/20 active:scale-95 group"
             title="Suggest an idea"
+            style={{ 
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)'
+            }}
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            <svg className="w-7 h-7 group-hover:text-[#E8A34A] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
           </button>
 
-          {/* Host Event Button */}
+          {/* Host Event Button - Primary Gold */}
           <button
             onClick={() => setHostModalOpen(true)}
-            className="bg-emerald-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:bg-emerald-700 transition-all flex items-center justify-center"
+            className="bg-[#F6C56A] text-[#0D0D0F] w-16 h-16 rounded-full shadow-xl hover:shadow-2xl hover:bg-[#E8A34A] transition-all duration-200 flex items-center justify-center font-bold active:scale-95 animate-pulse hover:animate-none"
             title="Host event"
           >
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
           </button>
         </div>
