@@ -68,7 +68,7 @@ export function LeafletMap({ center, events, interestSignals, onEventClick, onSi
           <Popup>
             <div className="text-sm">
               <p className="font-semibold">{event.title}</p>
-              <p className="text-xs text-gray-600">{new Date(event.start_time).toLocaleString()}</p>
+              <p className="text-xs text-gray-600">{new Date(event.startTime).toLocaleString()}</p>
             </div>
           </Popup>
         </Marker>
@@ -87,7 +87,7 @@ export function LeafletMap({ center, events, interestSignals, onEventClick, onSi
           <Popup>
             <div className="text-sm">
               <p className="font-semibold">💡 Interest Signal</p>
-              <p className="text-xs text-gray-600">{signal.interested_count} interested</p>
+              <p className="text-xs text-gray-600">{signal.interestedCount} interested</p>
             </div>
           </Popup>
         </Marker>
