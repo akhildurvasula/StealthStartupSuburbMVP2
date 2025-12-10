@@ -1,0 +1,18 @@
+geoid,census tract ID
+county,
+name,tract of short description
+lat,centroid of the tract
+lon,centroid of the tract
+dist_to_raleigh_mi,
+dist_to_durham_mi,
+dist_to_chapelhill_mi,
+dominant_city,"Raleigh, Durham, Chapel Hill"
+pop_density,people per square mile
+pct_pre1960_homes,
+pct_1960_1980_homes,
+pct_2000plus_homes,
+median_income,
+pct_drive_alone,
+pct_18_24,
+pct_65plus,
+suburb_type,

@@ -1,0 +1,19 @@
+---
+title: "Startup Idea - Suburbs Database"
+author: "Akhil Durvasula"
+date: "2025-12-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidycensus)
+library(sf)
+library(tidyverse)
+
+# Load API
+census_api_key("91178186caaa459a201caa68716b55ca89574f96", install=TRUE, overwrite=TRUE)
+readRenviron("~/.Renviron")
