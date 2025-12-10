@@ -248,13 +248,13 @@ export default function LandingPage() {
               {
                 num: '2',
                 title: 'Host or suggest an idea',
-                description: 'Choose from templates like coffee meetup, dog hour, evening walk. One tap and it's live on the map.',
+                description: 'Choose from templates like coffee meetup, dog hour, evening walk. One tap and it\'s live on the map.',
                 image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&q=80'
               },
               {
                 num: '3',
                 title: 'Neighbors join',
-                description: 'People nearby tap "Join" or "I'm interested." No complicated RSVPs or group chats.',
+                description: 'People nearby tap "Join" or "I\'m interested." No complicated RSVPs or group chats.',
                 image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80'
               },
               {
