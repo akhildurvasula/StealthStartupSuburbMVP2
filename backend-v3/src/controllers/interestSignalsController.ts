@@ -163,11 +163,18 @@ export async function expressInterest(req: AuthRequest, res: Response) {
         user_id: userId,
       });
 
+    // First, get current signal
+    const { data: currentSignal } = await supabase
+      .from('interest_signals')
+      .select('interested_count')
+      .eq('id', id)
+      .single();
+
     // Increment interested count
     const { data: signal, error } = await supabase
       .from('interest_signals')
       .update({
-        interested_count: supabase.sql`interested_count + 1`,
+        interested_count: (currentSignal?.interested_count || 0) + 1,
       })
       .eq('id', id)
       .select()
