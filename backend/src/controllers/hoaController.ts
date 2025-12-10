@@ -265,7 +265,7 @@ export async function updateHOALocation(req: AuthRequest, res: Response) {
       .eq('id', id)
       .single();
 
-    if (!location || location.hoa.admin_id !== userId) {
+    if (!location || (location.hoa as any)?.admin_id !== userId) {
       return res.status(403).json({ error: 'Not authorized to update this location' });
     }
 
@@ -321,7 +321,7 @@ export async function deleteHOALocation(req: AuthRequest, res: Response) {
       .eq('id', id)
       .single();
 
-    if (!location || location.hoa.admin_id !== userId) {
+    if (!location || (location.hoa as any)?.admin_id !== userId) {
       return res.status(403).json({ error: 'Not authorized to delete this location' });
     }
 

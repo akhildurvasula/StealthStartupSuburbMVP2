@@ -32,6 +32,12 @@ export async function comparePassword(password: string, hash: string): Promise<b
 // Auth middleware
 export interface AuthRequest extends Request {
   userId?: string;
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
