@@ -194,7 +194,7 @@ export default function LandingPage() {
               {
                 image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80',
                 icon: '🗺️',
-                title: 'See what's happening',
+                title: 'See what\'s happening',
                 description: 'Live neighborhood map shows nearby events and interest signals. Everything is walking or biking distance.',
                 gradient: 'from-[#8BA989]/20 to-[#8BA989]/10'
               },
@@ -306,7 +306,7 @@ export default function LandingPage() {
               },
               {
                 persona: 'Neighborhood organizers',
-                quote: "I'm the person who always hosts things and want better tools.",
+                quote: "I\'m the person who always hosts things and want better tools.",
                 image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
                 badge: null
               },
@@ -366,15 +366,15 @@ export default function LandingPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed">
-              We're testing Porchlight with a small group of neighborhoods around Raleigh–Durham–Chapel Hill.
+              We&apos;re testing Porchlight with a small group of neighborhoods around Raleigh–Durham–Chapel Hill.
             </p>
           </div>
 
           {submitted ? (
             <div className="backdrop-blur-xl bg-white/10 border-2 border-[#8BA989] rounded-3xl p-12 text-center">
               <div className="text-6xl mb-6">✨</div>
-              <h3 className="text-3xl font-bold text-white mb-3">You're on the list!</h3>
-              <p className="text-xl text-gray-300">We'll be in touch soon.</p>
+              <h3 className="text-3xl font-bold text-white mb-3">You&apos;re on the list!</h3>
+              <p className="text-xl text-gray-300">We&apos;ll be in touch soon.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="backdrop-blur-xl bg-white/10 border border-white/20 p-10 rounded-3xl shadow-2xl">
@@ -425,7 +425,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-[#1C1C1E] mb-8">
-              Why we're building Porchlight.
+              Why we&apos;re building Porchlight.
             </h2>
           </div>
           
