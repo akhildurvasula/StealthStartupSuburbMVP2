@@ -29,8 +29,8 @@ async function apiCall<T>(
 export async function getSuburbInfo(lat: number, lon: number) {
   return apiCall<{
     geoid: string;
-    suburbType: string;
-    dominantCity: string;
+    suburbType: 'Inner-Ring Suburb' | 'General Suburb' | 'Exurban Suburb';
+    dominantCity: 'Raleigh' | 'Durham' | 'Chapel Hill';
     lat: number;
     lon: number;
   }>(`/suburb-info?lat=${lat}&lon=${lon}`);
