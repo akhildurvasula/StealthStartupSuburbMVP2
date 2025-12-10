@@ -13,7 +13,7 @@ export function ProductMockup({ type }: ProductMockupProps) {
         <rect x="20" y="20" width="360" height="560" rx="30" fill="#F5F5F7"/>
         
         {/* Header */}
-        <rect x="20" y="20" width="360" height="80" rx="30" rxBottom="0" fill="#1C1C1E"/>
+        <rect x="20" y="20" width="360" height="80" fill="#1C1C1E"/>
         <circle cx="60" cy="60" r="8" fill="#F6C56A"/>
         <rect x="80" y="52" width="120" height="16" rx="8" fill="#F5F5F7" opacity="0.9"/>
         
@@ -51,7 +51,7 @@ export function ProductMockup({ type }: ProductMockupProps) {
         </g>
         
         {/* Bottom drawer peek */}
-        <rect x="20" y="500" width="360" height="80" rx="30" rxTop="30" fill="white" opacity="0.95"/>
+        <rect x="20" y="500" width="360" height="80" rx="30" fill="white" opacity="0.95"/>
         <rect x="180" y="510" width="40" height="4" rx="2" fill="#D1D5DB"/>
         <text x="200" y="545" fontSize="16" fontWeight="bold" textAnchor="middle" fill="#1C1C1E">Events Near You</text>
         <text x="200" y="565" fontSize="12" textAnchor="middle" fill="#6B7280">3 events</text>
