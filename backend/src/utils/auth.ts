@@ -29,7 +29,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
   return bcrypt.compare(password, hash);
 }
 
-// Auth middleware
+// Auth middleware - extend Request to include auth properties
 export interface AuthRequest extends Request {
   userId?: string;
   user?: {
@@ -38,6 +38,11 @@ export interface AuthRequest extends Request {
     name: string;
     role: string;
   };
+  // Include all Request properties explicitly for TypeScript
+  body: any;
+  params: any;
+  query: any;
+  headers: any;
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
