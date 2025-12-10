@@ -134,7 +134,7 @@ export function ProductMockup({ type }: ProductMockupProps) {
             <rect x="100" y={y + 30} width="200" height="20" rx="4" fill="#1C1C1E"/>
             <rect x="100" y={y + 60} width="240" height="12" rx="4" fill="#3A3A3C"/>
             <rect x="100" y={y + 80} width="200" height="12" rx="4" fill="#3A3A3C"/>
-            <rect x="100" y={y + 105" width="100" height="24" rx="12" fill="#F6C56A" opacity="0.3"/>
+            <rect x="100" y={y + 105} width="100" height="24" rx="12" fill="#F6C56A" opacity="0.3"/>
           </g>
         );
       })}
