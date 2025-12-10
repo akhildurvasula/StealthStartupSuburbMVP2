@@ -1,291 +1,359 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import { SuburbBanner } from '@/components/SuburbBanner';
+import { useState } from 'react';
+import Link from 'next/link';
 
-// Load Leaflet Map component only on client side
-const LeafletMap = dynamic(() => import('@/components/LeafletMap').then(mod => ({ default: mod.LeafletMap })), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <div className="text-4xl mb-2">🗺️</div>
-        <p className="text-gray-600">Loading map...</p>
-      </div>
-    </div>
-  ),
-});
-import { EventDrawer } from '@/components/EventDrawer';
-import { HostEventModal } from '@/components/HostEventModal';
-import { InterestSignalModal } from '@/components/InterestSignalModal';
-import { GhostPinPopover } from '@/components/GhostPinPopover';
-import { Toast } from '@/components/Toast';
-import { SuburbInfo, Event, InterestSignal } from '@/lib/types';
-import * as api from '@/lib/api';
-import { getUserId } from '@/lib/storage';
+export default function LandingPage() {
+  const [email, setEmail] = useState('');
+  const [suburb, setSuburb] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
-export default function Home() {
-  const router = useRouter();
-  
-  // Location state
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [suburbInfo, setSuburbInfo] = useState<SuburbInfo | null>(null);
-  
-  // Data state
-  const [events, setEvents] = useState<Event[]>([]);
-  const [interestSignals, setInterestSignals] = useState<InterestSignal[]>([]);
-  
-  // UI state
-  const [hostModalOpen, setHostModalOpen] = useState(false);
-  const [interestModalOpen, setInterestModalOpen] = useState(false);
-  const [selectedSignal, setSelectedSignal] = useState<InterestSignal | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Request geolocation on mount
-  useEffect(() => {
-    // Set default location immediately (Chapel Hill)
-    const defaultLocation: [number, number] = [-79.0558, 35.9132];
-    setUserLocation(defaultLocation);
-    
-    // Then try to get actual location with timeout
-    if ('geolocation' in navigator) {
-      const timeoutId = setTimeout(() => {
-        console.log('Geolocation timeout, using default location');
-      }, 5000);
-      
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          clearTimeout(timeoutId);
-          const { latitude, longitude } = position.coords;
-          setUserLocation([longitude, latitude]);
-          console.log('Got actual location:', longitude, latitude);
-        },
-        (error) => {
-          clearTimeout(timeoutId);
-          console.error('Geolocation error:', error);
-        },
-        { timeout: 5000, enableHighAccuracy: false }
-      );
-    }
-  }, []);
-
-  // Fetch suburb info when location is available
-  useEffect(() => {
-    if (!userLocation) return;
-
-    const fetchSuburbInfo = async () => {
-      try {
-        const info = await api.getSuburbInfo(userLocation[1], userLocation[0]);
-        setSuburbInfo(info);
-      } catch (error) {
-        console.error('Failed to fetch suburb info:', error);
-        setToast({ message: 'Could not identify suburb', type: 'error' });
-      }
-    };
-
-    fetchSuburbInfo();
-  }, [userLocation]);
-
-  // Fetch events and signals
-  useEffect(() => {
-    if (!userLocation) return;
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [eventsData, signalsData] = await Promise.all([
-          api.getEvents(userLocation[1], userLocation[0], 10),
-          api.getInterestSignals(userLocation[1], userLocation[0], 10),
-        ]);
-        
-        setEvents(eventsData);
-        setInterestSignals(signalsData);
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [userLocation]);
-
-  // Handle host event submission
-  const handleHostEvent = async (data: {
-    templateKey: string;
-    title: string;
-    description: string;
-    startTime: string;
-  }) => {
-    if (!userLocation) return;
-
-    try {
-      const userId = getUserId();
-      const newEvent = await api.createEvent({
-        hostId: userId,
-        templateKey: data.templateKey,
-        title: data.title,
-        description: data.description,
-        startTime: data.startTime,
-        lat: userLocation[1],
-        lon: userLocation[0],
-      });
-
-      // Optimistically add to events
-      setEvents(prev => [...prev, newEvent]);
-      setHostModalOpen(false);
-      setToast({ message: 'Your event is live! 🎉', type: 'success' });
-    } catch (error) {
-      console.error('Failed to create event:', error);
-      setToast({ message: 'Failed to create event', type: 'error' });
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Waitlist signup:', { email, suburb });
+    setSubmitted(true);
+    setTimeout(() => {
+      setEmail('');
+      setSuburb('');
+      setSubmitted(false);
+    }, 3000);
   };
 
-  // Handle interest signal creation
-  const handleCreateSignal = async (templateKey: string) => {
-    if (!userLocation) return;
-
-    try {
-      const userId = getUserId();
-      const newSignal = await api.createInterestSignal({
-        userId,
-        templateKey,
-        lat: userLocation[1],
-        lon: userLocation[0],
-      });
-
-      // Add to signals
-      setInterestSignals(prev => [...prev, newSignal]);
-      setInterestModalOpen(false);
-      setToast({ message: 'Interest signal created! 👻', type: 'success' });
-    } catch (error) {
-      console.error('Failed to create signal:', error);
-      setToast({ message: 'Failed to create signal', type: 'error' });
-    }
+  const scrollToWaitlist = () => {
+    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  // Handle expressing interest in a signal
-  const handleExpressInterest = async () => {
-    if (!selectedSignal) return;
-
-    try {
-      const userId = getUserId();
-      await api.expressInterest(selectedSignal.id, userId);
-
-      // Update signal count
-      setInterestSignals(prev =>
-        prev.map(s =>
-          s.id === selectedSignal.id
-            ? { ...s, interestedCount: s.interestedCount + 1 }
-            : s
-        )
-      );
-
-      setSelectedSignal(null);
-      setToast({ message: "Interest noted! We'll let others know.", type: 'success' });
-    } catch (error) {
-      console.error('Failed to express interest:', error);
-      setToast({ message: 'Failed to express interest', type: 'error' });
-    }
-  };
-
-  // Handle signal click
-  const handleSignalClick = (signalId: string) => {
-    const signal = interestSignals.find(s => s.id === signalId);
-    if (signal) {
-      setSelectedSignal(signal);
-    }
-  };
-
-  if (!userLocation) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="text-4xl mb-4">🏡</div>
-          <p className="text-gray-600">Getting your location...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Suburb Banner */}
-      <SuburbBanner suburbInfo={suburbInfo} />
-
-      {/* Map */}
-      <div className="flex-1 relative">
-        <LeafletMap
-          center={userLocation}
-          events={events}
-          interestSignals={interestSignals}
-          onEventClick={(id) => router.push(`/event/${id}`)}
-          onSignalClick={handleSignalClick}
-        />
-
-        {/* Floating Action Buttons */}
-        <div className="absolute bottom-32 right-4 flex flex-col gap-3">
-          {/* Suggest Idea Button */}
-          <button
-            onClick={() => setInterestModalOpen(true)}
-            className="bg-white text-gray-700 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center border-2 border-gray-300 border-dashed"
-            title="Suggest an idea"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-          </button>
-
-          {/* Host Event Button */}
-          <button
-            onClick={() => setHostModalOpen(true)}
-            className="bg-emerald-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:bg-emerald-700 transition-all flex items-center justify-center"
-            title="Host event"
-          >
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
+    <main className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-amber-50 to-white">
+        <div className="max-w-6xl mx-auto px-6 py-20 md:py-32">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-amber-900" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Porchlight</h1>
+            </div>
+            
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Turn quiet suburbs into living communities.
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
+              Porchlight helps neighbors host micro-events, meet nearby people, and build real culture in car-dependent suburbs.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={scrollToWaitlist}
+                className="px-8 py-4 bg-amber-500 text-white text-lg font-semibold rounded-full hover:bg-amber-600 transition-colors shadow-lg hover:shadow-xl"
+              >
+                Get early access
+              </button>
+              <Link
+                href="/app"
+                className="px-8 py-4 bg-white text-gray-700 text-lg font-semibold rounded-full hover:bg-gray-50 transition-colors border-2 border-gray-300"
+              >
+                Launch app
+              </Link>
+            </div>
+            
+            <p className="mt-6 text-sm text-gray-500">
+              Starting with suburbs around Raleigh–Durham–Chapel Hill.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Event Drawer */}
-      <EventDrawer
-        events={events}
-        onEventClick={(id) => router.push(`/event/${id}`)}
-      />
+      {/* Problem Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Modern suburbs are lonely by design.
+            </h3>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Car dependence and single-use zoning keep people isolated. You can live on a street for years without knowing your neighbors. Urban fixes like transit and walkability take decades—but loneliness is happening now.
+            </p>
+          </div>
 
-      {/* Modals */}
-      <HostEventModal
-        isOpen={hostModalOpen}
-        onClose={() => setHostModalOpen(false)}
-        onSubmit={handleHostEvent}
-      />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">🚗</div>
+              <h4 className="font-semibold text-gray-900 mb-2">Designed for cars, not people</h4>
+              <p className="text-sm text-gray-600">Every trip requires driving</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">🏠</div>
+              <h4 className="font-semibold text-gray-900 mb-2">No shared spaces</h4>
+              <p className="text-sm text-gray-600">Nowhere to casually meet</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">👻</div>
+              <h4 className="font-semibold text-gray-900 mb-2">Invisible neighbors</h4>
+              <p className="text-sm text-gray-600">Anonymous faces in driveways</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">⏰</div>
+              <h4 className="font-semibold text-gray-900 mb-2">No time to organize</h4>
+              <p className="text-sm text-gray-600">Planning events is hard</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <InterestSignalModal
-        isOpen={interestModalOpen}
-        onClose={() => setInterestModalOpen(false)}
-        onSubmit={handleCreateSignal}
-      />
+      {/* Solution Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-amber-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Porchlight turns your suburb into a culture engine.
+            </h3>
+          </div>
 
-      <GhostPinPopover
-        signal={selectedSignal}
-        onClose={() => setSelectedSignal(null)}
-        onExpressInterest={handleExpressInterest}
-      />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-4xl mb-4">🎯</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Host micro-events</h4>
+              <p className="text-gray-600 leading-relaxed">
+                Start small things like coffee in the cul-de-sac, dog walks, or porch music. Choose from simple templates and go live in one tap.
+              </p>
+            </div>
 
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </div>
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-4xl mb-4">🗺️</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">See what's happening near you</h4>
+              <p className="text-gray-600 leading-relaxed">
+                Live neighborhood map shows nearby events and interest signals. Everything is walking or biking distance.
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="text-4xl mb-4">🤝</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Build real belonging</h4>
+              <p className="text-gray-600 leading-relaxed">
+                Repeated meetups turn neighbors into community. See the same faces, learn names, and feel like your suburb is alive.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-6">
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-16">
+            How it works
+          </h3>
+
+          <div className="space-y-12">
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-lg">
+                1
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Open the map</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  See micro-events and interest spots in your suburb. Everything is hyperlocal—within a few blocks.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-lg">
+                2
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Host or suggest an idea</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  Choose from templates like coffee meetup, dog hour, evening walk. One tap and it's live on the map.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-lg">
+                3
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Neighbors join</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  People nearby tap "Join" or "I'm interested." No complicated RSVPs or group chats.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold text-lg">
+                4
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Your suburb starts to feel alive</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  Familiar faces, recurring meetups, and the sense that your neighborhood has culture.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who It's For */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-16">
+            Built for neighbors who care.
+          </h3>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-3xl mb-4">👋</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Residents</h4>
+              <p className="text-gray-600 italic leading-relaxed">
+                "I want to feel less alone and actually know the people around me."
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-3xl mb-4">🌟</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Neighborhood organizers</h4>
+              <p className="text-gray-600 italic leading-relaxed">
+                "I'm the person who always hosts things and want better tools."
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full">
+                Coming soon
+              </div>
+              <div className="text-3xl mb-4 opacity-60">🏘️</div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3 opacity-60">Suburban leaders</h4>
+              <p className="text-gray-600 italic leading-relaxed opacity-60">
+                "HOAs and local groups who want more vibrant communities."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Early Access / Email Capture */}
+      <section id="waitlist" className="py-20 bg-gradient-to-b from-gray-50 to-amber-50">
+        <div className="max-w-2xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Be one of the first to turn the lights on.
+            </h3>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              We're testing Porchlight with a small group of neighborhoods around Raleigh–Durham–Chapel Hill. Leave your email and suburb, and we'll reach out as we expand.
+            </p>
+          </div>
+
+          {submitted ? (
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 text-center">
+              <div className="text-5xl mb-4">✨</div>
+              <h4 className="text-2xl font-bold text-emerald-900 mb-2">You're on the list!</h4>
+              <p className="text-emerald-700">We'll be in touch soon.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-md border border-gray-100">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email address *
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="suburb" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Your suburb or neighborhood
+                  </label>
+                  <input
+                    id="suburb"
+                    type="text"
+                    value={suburb}
+                    onChange={(e) => setSuburb(e.target.value)}
+                    placeholder="e.g., Cary, Morrisville, Chapel Hill"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full px-8 py-4 bg-amber-500 text-white text-lg font-semibold rounded-lg hover:bg-amber-600 transition-colors shadow-md hover:shadow-lg"
+                >
+                  Join the waitlist
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </section>
+
+      {/* Mission / Founder Blurb */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">
+            Why we're building Porchlight.
+          </h3>
+          <div className="bg-gray-50 p-8 rounded-2xl">
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+              We believe suburbs can be more than traffic and driveways. With the right rituals and tools, they can become places where people belong and culture grows. Porchlight makes it effortless to turn lonely cul-de-sacs into neighborhoods that feel alive.
+            </p>
+            <p className="text-gray-600 font-medium">
+              — Porchlight team
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-12">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-900" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+              </div>
+              <span className="text-white font-semibold">Porchlight</span>
+            </div>
+            
+            <p className="text-sm">
+              Built for suburbs everywhere, starting in North Carolina.
+            </p>
+            
+            <div className="flex gap-6 text-sm">
+              <a href="mailto:hello@porchlight.community" className="hover:text-white transition-colors">
+                Contact
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Twitter
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Instagram
+              </a>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
+            <p>© 2025 Porchlight. Building community, one porch at a time.</p>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
 
